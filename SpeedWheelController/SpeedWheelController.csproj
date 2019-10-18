@@ -43,8 +43,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DeviceToKeyboardHandler.cs" />
+    <Compile Include="IDeviceToKeyboardHandler.cs" />
+    <Compile Include="ProcessHandler.cs" />
+    <Compile Include="SpeedWheelController.cs" />
+    <Compile Include="Utils\SpeedWheelKey.cs" />
+    <Compile Include="KeyboardHandleUtility.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\SpeedWheelOutputBytesMapping.cs" />
+    <Compile Include="Utils\VirtualKeyCodes.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
