@@ -1,104 +1,48 @@
 ﻿using System;
-using System.Linq;
-using HidLibrary;
+using System.Threading;
+using SpeedWheelController.HID;
 
 namespace SpeedWheelController
 {
     class Program
     {
-        //HID\VID_0583&PID_B003
-        
-
         private static readonly int VendorId = 0x0583;
 
         private static readonly int ProductId = 0xB003;
 
-        private static HidDevice _device;
-
-        private static bool _attached;
-
-        private static ushort _message;
-
-        private readonly byte _buttonsPressed;
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            _device = HidDevices.Enumerate(VendorId, ProductId).Last();
-
-            if (_device == null)
-            {
-                Console.WriteLine("Device not found");
-                return;
-            }
-
-            _device.OpenDevice();
-
-            _device.Inserted += DeviceAttachedHandler;
-            _device.Removed += DeviceRemovedHandler;
-
-            _device.MonitorDeviceEvents = true;
-
-            Console.WriteLine(_device.Description);
-
-            _device.ReadReport(OnReport);
+            IDeviceManager HIDDeviceManager = new DeviceManager(VendorId, ProductId);
             
-            Console.WriteLine("Gamepad found, press any key to exit.");
-            Console.ReadKey();
+            HIDDeviceManager.AddDeviceAttachedHandler(() => Console.WriteLine("Device Attached"));
+            HIDDeviceManager.AddDeviceRemovedHandler(() =>  Console.WriteLine("Device Removed"));
 
-            _device.CloseDevice();
-        }
-
-        private static void OnReport(HidReport report)
-        {
-            if (_attached == false) { return; }
-
-            if (report.Data.Length >= 0)
+            do
             {
-                GetMessage(report.Data);
-            }
-            _device.ReadReport(OnReport);
-        }
+                var data = HIDDeviceManager.ReadDeviceOutput();
+                if (data == null) continue;
 
-        public static void GetMessage(byte[] message)
-        {
-            for (var i = 0; i < message.Length; i++)
+                foreach (var bte in data)
+                {
+                    Console.Write(bte);
+                    Console.Write(" ");
+                }
+                Console.WriteLine();
+            } while (Console.ReadKey().Key != ConsoleKey.Enter);
+
+            Console.WriteLine("Press Enter for some good vibrations?");
+            while (Console.ReadKey().Key == ConsoleKey.Enter)
             {
-               Console.Write(message[i]);
-               Console.Write(" ");
+                HIDDeviceManager.WriteToDevice(new byte[] { 0, 64, 0, 0, 0, 0, 0, 0 });
+                Thread.Sleep(1000);
+                HIDDeviceManager.WriteToDevice(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
+                Thread.Sleep(1000);
+                HIDDeviceManager.WriteToDevice(new byte[] { 0, 128, 0, 0, 0, 0, 0, 0 });
+                Thread.Sleep(1000);
+                HIDDeviceManager.WriteToDevice(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
             }
-            Console.WriteLine();
-            Console.ReadKey();
-            //Console.WriteLine(BitConverter.ToString(message).Replace("-", ""));
-            //if (message != null && message.Length > 0)
-            //{
-            //    var value = new byte[2];
-            //    Array.Copy(message, 4, value, 0, 2);
-            //    _message = BitConverter.ToUInt16(value, 0);
-            //}
-            //else throw new InvalidCastException("Cannot convert gamepad message to 32 bit integer.");
-            //_buttonsPressed = GetButtonsPressed(this);
-        }
-
-        private static void KeyPressed(int value)
-        {
-            Console.WriteLine("Button {0} pressed.", value);
-        }
-
-        private static void KeyDepressed()
-        {
-            Console.WriteLine("Button depressed.");
-        }
-
-        private static void DeviceAttachedHandler()
-        {
-            _attached = true;
-            Console.WriteLine("Gamepad attached.");
-            _device.ReadReport(OnReport);
-        }
-
-        private static void DeviceRemovedHandler()
-        {
-            _attached = false;
-            Console.WriteLine("Gamepad removed.");
+            HIDDeviceManager.WriteToDevice(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
+            HIDDeviceManager.CloseDevice();
         }
     }
 }
