@@ -94,7 +94,8 @@ namespace SpeedWheelController
 
         public void AssignTargetProcess(Process process)
         {
-            TargetProcess = process;
+            if(TargetProcess == null || !TargetProcess.Equals(process))
+                TargetProcess = process;
         }
     }
 }

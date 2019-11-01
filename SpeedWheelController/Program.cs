@@ -20,28 +20,33 @@ namespace SpeedWheelController
             HIDDeviceManager.AddDeviceRemovedHandler(() => Console.WriteLine("Device Removed"));
             var processes = ProcessHandler.GetProcessesByName("Code");
 
-            new TaskFactory().StartNew(() =>
+            var timer = new Timer(state =>
             {
-                do
+                var data = HIDDeviceManager.ReadDeviceOutput();
+                if (data == null) return;
+                if (SpeedWheelController.IsDefaultData(data)) return;
+
+                foreach (var process in processes)
                 {
-                    var data = HIDDeviceManager.ReadDeviceOutput();
-                    if (data == null) continue;
+                    keyboardHandler.AssignTargetProcess(process);
 
-                    foreach (var process in processes)
-                    {
-                        keyboardHandler.AssignTargetProcess(process);
+                    keyboardHandler.HandleSteering(SpeedWheelController.GetSteeringValue(data));
+                    keyboardHandler.HandlePedals(SpeedWheelController.GetPedalsValue(data));
+                    keyboardHandler.HandleButtons(SpeedWheelController.GetButtonsValue(data));
+                    keyboardHandler.HandleBackButtons(SpeedWheelController.GetBackButtonsValue(data));
+                    keyboardHandler.HandlePowHat(SpeedWheelController.GetPowHatValue(data));
+                }
+            }, null, 100, 100);
 
-                        keyboardHandler.HandleSteering(SpeedWheelController.GetSteeringValue(data));
-                        keyboardHandler.HandlePedals(SpeedWheelController.GetPedalsValue(data));
-                        keyboardHandler.HandleButtons(SpeedWheelController.GetButtonsValue(data));
-                        keyboardHandler.HandleBackButtons(SpeedWheelController.GetBackButtonsValue(data));
-                        keyboardHandler.HandlePowHat(SpeedWheelController.GetPowHatValue(data));
-                    }
-
-                    Thread.Sleep(100);
-                } while (true);
-            });
-            Console.ReadKey();
+            Console.WriteLine("Press Enter to exit.");
+            if (Console.ReadKey().Key == ConsoleKey.Enter)
+            {
+                timer.Change(
+                    Timeout.Infinite,
+                    Timeout.Infinite);
+                timer.Dispose();
+                return;
+            }
 
             //Console.WriteLine("Press Enter for some good vibrations?");
             //while (Console.ReadKey().Key == ConsoleKey.Enter)

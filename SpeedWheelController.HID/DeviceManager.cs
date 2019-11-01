@@ -61,7 +61,7 @@ namespace SpeedWheelController.HID
                 _message = report.Data;
             }
 
-            _device.ReadReport(OnReport);
+            //_device.ReadReport(OnReport);
         }
 
         private byte[] GetMessage()
