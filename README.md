@@ -1,5 +1,11 @@
 # SpeedWheelController
-Project to control Genius Speed Wheel 3 MT device from code
+Project to emulate keyboard input using Genius Speed Wheel 3 MT device.
+
+**Layout:**
+
+    Pedals - coursor up/down
+    Wheel - coursor left/right
+    Transmission buttons - backspace/enter
 
 Typical Genius Speed Wheel 3 MT device:
 <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fc.dns-shop.ru%2Fthumb%2Fst1%2Ffit%2F1000%2F809%2F8c3fc70f562c0cce44baead9c0b0e2aa%2F2612d4390cb29fc282bf3f61b278e98688d54606345fe84ee4ec7c4cd1394ecc.jpg&f=1&nofb=1" height="500" >
