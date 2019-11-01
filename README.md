@@ -3,8 +3,8 @@ Project to emulate keyboard input using Genius Speed Wheel 3 MT device.
 
 **Layout:**
 
-    Pedals - coursor up/down
-    Wheel - coursor left/right
+    Pedals - cursor up/down
+    Wheel - cursor left/right
     Transmission buttons - backspace/enter
 
 Typical Genius Speed Wheel 3 MT device:
